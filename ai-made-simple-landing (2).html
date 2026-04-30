@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Made Simple</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0f0f0f;
+    --white: #ffffff;
+    --cream: #f8f6f1;
+    --green: #1a9e4a;
+    --green-light: #f3faf5;
+    --green-border: #b6e8c8;
+    --gray: #666;
+    --gray-light: #f4f4f2;
+    --border: #e8e8e8;
+    --max: 480px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--black);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── REVEAL ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.55s cubic-bezier(0.22,1,0.36,1),
+                transform 0.55s cubic-bezier(0.22,1,0.36,1);
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.08s; }
+  .reveal-delay-2 { transition-delay: 0.16s; }
+  .reveal-delay-3 { transition-delay: 0.24s; }
+  .reveal-delay-4 { transition-delay: 0.32s; }
+  .reveal-delay-5 { transition-delay: 0.40s; }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    background: var(--black);
+    padding: 11px 24px;
+    text-align: center;
+    position: relative; z-index: 10;
+  }
+  .topbar span {
+    font-size: 11px; font-weight: 700;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+  .topbar span b { color: #fff; font-weight: 800; }
+
+  /* ── LAYOUT ── */
+  .page {
+    max-width: var(--max);
+    margin: 0 auto;
+    background: var(--white);
+    min-height: 100vh;
+  }
+
+  /* On wider screens, float as card */
+  @media (min-width: 600px) {
+    body { padding: 40px 20px 80px; }
+    .page {
+      border-radius: 16px;
+      box-shadow: 0 8px 60px rgba(0,0,0,0.1);
+      min-height: unset;
+      overflow: hidden;
+    }
+    .sticky-bar {
+      border-radius: 0 0 16px 16px;
+    }
+  }
+
+  @media (min-width: 900px) {
+    body { padding: 60px 20px 100px; }
+    :root { --max: 520px; }
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: clamp(40px, 6vw, 56px) clamp(24px, 6vw, 40px) clamp(36px, 5vw, 48px);
+    border-bottom: 1px solid var(--border);
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: 'AI';
+    position: absolute; top: -10px; right: -5px;
+    font-size: clamp(140px, 30vw, 200px);
+    font-weight: 800; color: rgba(0,0,0,0.03);
+    pointer-events: none; line-height: 1;
+    animation: bgPulse 7s ease-in-out infinite;
+  }
+  @keyframes bgPulse {
+    0%,100% { opacity:0.6; transform:scale(1); }
+    50% { opacity:1; transform:scale(1.04); }
+  }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: var(--green-light);
+    border: 1.5px solid var(--green-border);
+    border-radius: 100px;
+    padding: 5px 14px 5px 10px;
+    margin-bottom: clamp(20px, 4vw, 28px);
+    animation: fadeDown 0.7s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  @keyframes fadeDown {
+    from { opacity:0; transform:translateY(-14px); }
+    to { opacity:1; transform:translateY(0); }
+  }
+  .badge-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--green);
+    animation: blink 2s ease-in-out infinite;
+  }
+  @keyframes blink {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:0.4; transform:scale(0.75); }
+  }
+  .badge span {
+    font-size: 11px; font-weight: 700;
+    color: var(--green); letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .hero-headline {
+    font-size: clamp(38px, 9vw, 52px);
+    font-weight: 800; line-height: 1.05;
+    letter-spacing: -1.5px; color: var(--black);
+    margin-bottom: 14px; position: relative; z-index: 1;
+    animation: fadeUp 0.75s 0.1s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(22px); }
+    to { opacity:1; transform:translateY(0); }
+  }
+  .hero-headline .underline {
+    text-decoration: underline;
+    text-decoration-color: var(--green);
+    text-decoration-thickness: 4px;
+    text-underline-offset: 6px;
+  }
+  .hero-sub {
+    font-size: clamp(15px, 3.5vw, 17px);
+    color: #444; font-weight: 600; line-height: 1.5;
+    position: relative; z-index: 1;
+    animation: fadeUp 0.75s 0.22s cubic-bezier(0.22,1,0.36,1) both;
+  }
+
+  /* ── SECTIONS ── */
+  .section {
+    padding: clamp(24px, 5vw, 36px) clamp(24px, 6vw, 40px);
+    border-bottom: 1px solid var(--border);
+  }
+  .section-tag {
+    font-size: 10px; font-weight: 700;
+    color: #bbb; text-transform: uppercase;
+    letter-spacing: 2.5px; margin-bottom: 14px;
+  }
+
+  /* RELIEF */
+  .relief-text {
+    font-size: clamp(15px, 3.5vw, 17px);
+    color: var(--black); font-weight: 700; line-height: 1.6;
+    margin-bottom: 8px;
+  }
+  .relief-sub {
+    font-size: clamp(14px, 3vw, 15px);
+    color: var(--gray); font-weight: 400; line-height: 1.7;
+  }
+
+  /* WHY */
+  .why-block {
+    background: var(--gray-light);
+    border-radius: 14px; padding: clamp(16px, 4vw, 22px);
+  }
+  .why-list {
+    display: flex; flex-direction: column;
+    gap: 12px; margin-bottom: 16px;
+  }
+  .why-item {
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .why-dash {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: #ddd; display: flex;
+    align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .why-dash span {
+    width: 8px; height: 2px;
+    background: #999; border-radius: 2px; display: block;
+  }
+  .why-item p {
+    font-size: clamp(13px, 3vw, 14px);
+    color: #555; line-height: 1.6;
+  }
+  .why-conclusion {
+    font-size: clamp(14px, 3.2vw, 15px);
+    color: var(--black); font-weight: 700; line-height: 1.5;
+    padding-top: 14px; border-top: 1px solid var(--border);
+  }
+
+  /* WHAT THIS IS */
+  .what-text {
+    font-size: clamp(14px, 3.2vw, 15px);
+    color: #333; line-height: 1.8;
+    padding-left: 16px; border-left: 3px solid var(--black);
+    margin-bottom: 14px;
+  }
+  .reassurance {
+    font-size: 13.5px; color: var(--green); font-weight: 600;
+    background: var(--green-light); border-radius: 8px;
+    padding: 11px 14px; border: 1px solid var(--green-border);
+  }
+
+  /* LEARN */
+  .learn-list {
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .learn-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 11px 12px; border-radius: 10px;
+    background: transparent;
+    transition: background 0.2s ease;
+  }
+  .learn-item:hover { background: var(--gray-light); }
+  .check {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--black);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+  .learn-item:hover .check {
+    transform: scale(1.1); background: var(--green);
+  }
+  .check svg { width: 11px; height: 11px; }
+  .learn-item span {
+    font-size: clamp(14px, 3.2vw, 15px);
+    color: var(--black); font-weight: 500; line-height: 1.5;
+  }
+
+  /* FORMAT */
+  .format-pills {
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .format-pill {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--gray-light); border-radius: 12px;
+    padding: 13px 16px;
+    border: 1px solid transparent;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+  .format-pill:hover {
+    border-color: var(--green-border);
+    transform: translateX(4px);
+  }
+  .pill-icon { font-size: 20px; }
+  .pill-text {
+    font-size: clamp(13px, 3vw, 14px);
+    color: #333; font-weight: 600;
+  }
+
+  /* TRUST */
+  .trust-section {
+    padding: clamp(24px, 5vw, 32px) clamp(24px, 6vw, 40px);
+    background: var(--green-light);
+    border-top: 1px solid var(--green-border);
+    border-bottom: 1px solid var(--green-border);
+    text-align: center;
+  }
+  .trust-text {
+    font-size: clamp(16px, 4vw, 19px);
+    font-weight: 700; color: var(--black);
+    font-style: italic; line-height: 1.5;
+  }
+
+  /* CTA */
+  .cta-section {
+    padding: clamp(28px, 5vw, 40px) clamp(24px, 6vw, 40px) clamp(36px, 6vw, 52px);
+    background: var(--black);
+  }
+  .cta-date {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 20px; padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .cta-date span {
+    font-size: 14px; color: rgba(255,255,255,0.55); font-weight: 500;
+  }
+  .cta-date b { color: #fff; font-weight: 700; }
+  .cta-price-row {
+    display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px;
+  }
+  .cta-amount {
+    font-size: clamp(44px, 10vw, 56px);
+    font-weight: 800; color: #fff;
+    letter-spacing: -2px; line-height: 1;
+  }
+  .cta-per { font-size: 13px; color: rgba(255,255,255,0.4); }
+  .cta-small-group {
+    font-size: 13px; color: rgba(255,255,255,0.4);
+    margin-bottom: 28px; font-style: italic;
+  }
+  .cta-btn {
+    display: block; width: 100%;
+    background: var(--white); border-radius: 14px;
+    padding: 18px 20px; text-align: center;
+    text-decoration: none;
+    transition: transform 0.2s cubic-bezier(0.22,1,0.36,1),
+                box-shadow 0.2s ease, background 0.2s ease;
+  }
+  .cta-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(255,255,255,0.1);
+    background: #f5f5f5;
+  }
+  .cta-btn:active { transform: scale(0.98); }
+  .cta-btn-text {
+    font-size: clamp(15px, 3.5vw, 16px);
+    font-weight: 800; color: var(--black); display: block;
+  }
+  .cta-btn-sub {
+    font-size: 12px; color: rgba(0,0,0,0.4);
+    margin-top: 3px; display: block; font-weight: 500;
+  }
+
+  /* FOOTER */
+  .footer {
+    padding: 20px clamp(24px, 6vw, 40px);
+    background: var(--black);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    text-align: center;
+  }
+  .footer p {
+    font-size: 12.5px; color: rgba(255,255,255,0.3); line-height: 1.6;
+  }
+  .footer a {
+    color: rgba(255,255,255,0.6); text-decoration: none;
+    font-weight: 600; transition: color 0.2s;
+  }
+  .footer a:hover { color: #fff; }
+
+  /* ── STICKY BAR ── */
+  .sticky-bar {
+    position: fixed; bottom: 0; left: 50%;
+    transform: translateX(-50%) translateY(100%);
+    width: 100%; max-width: var(--max);
+    background: var(--black);
+    padding: 12px 20px 18px;
+    z-index: 100;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+    box-shadow: 0 -6px 30px rgba(0,0,0,0.2);
+  }
+  .sticky-bar.visible {
+    transform: translateX(-50%) translateY(0);
+  }
+  .sticky-inner {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .sticky-price {
+    font-size: clamp(17px, 4vw, 20px);
+    font-weight: 800; color: #fff; white-space: nowrap;
+  }
+  .sticky-btn {
+    flex: 1; display: block;
+    background: var(--white); border-radius: 10px;
+    padding: 12px 16px; text-align: center;
+    text-decoration: none;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+  .sticky-btn:hover { transform: translateY(-2px); background: #f0f0f0; }
+  .sticky-btn:active { transform: scale(0.97); }
+  .sticky-btn span {
+    font-size: clamp(13px, 3vw, 14px);
+    font-weight: 800; color: var(--black);
+  }
+
+  /* ── BACK TO TOP ── */
+  .back-to-top {
+    position: fixed; bottom: 80px;
+    right: max(16px, calc(50% - var(--max)/2 - 56px));
+    width: 42px; height: 42px;
+    background: var(--black); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 99;
+    opacity: 0; pointer-events: none;
+    transform: scale(0.7);
+    transition: opacity 0.3s ease,
+                transform 0.3s cubic-bezier(0.22,1,0.36,1);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    text-decoration: none;
+    border: none;
+  }
+  .back-to-top.visible {
+    opacity: 1; pointer-events: all; transform: scale(1);
+  }
+  .back-to-top:hover { transform: scale(1.1); background: #2a2a2a; }
+  .back-to-top svg { width: 16px; height: 16px; }
+
+  @media (max-width: 540px) {
+    .back-to-top { right: 16px; bottom: 80px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span><b>AI Made Simple</b> · WhatsApp Live Class</span>
+</div>
+
+<div class="page" id="top">
+
+  <div class="hero">
+    <div class="badge">
+      <div class="badge-dot"></div>
+      <span>WhatsApp Live Class</span>
+    </div>
+    <div class="hero-headline">
+      Use what could<br><span class="underline">replace you</span><br>to work for you.
+    </div>
+    <div class="hero-sub">Even if you've never used AI before.</div>
+  </div>
+
+  <div class="section reveal">
+    <div class="relief-text">Everyone is talking about AI.<br>Most people still don't know how to actually use it.</div>
+    <div class="relief-sub" style="margin-top:8px">If that's you — this class is for you.</div>
+  </div>
+
+  <div class="section reveal">
+    <div class="section-tag">Why this class exists</div>
+    <div class="why-block">
+      <p style="font-size:clamp(14px,3.2vw,15px);font-weight:700;color:var(--black);margin-bottom:14px;line-height:1.5;">Most people already use AI like ChatGPT.<br>But they:</p>
+      <div class="why-list">
+        <div class="why-item reveal reveal-delay-1">
+          <div class="why-dash"><span></span></div>
+          <p>Send one message and accept whatever comes out</p>
+        </div>
+        <div class="why-item reveal reveal-delay-2">
+          <div class="why-dash"><span></span></div>
+          <p>Go back and forth without getting clear results</p>
+        </div>
+        <div class="why-item reveal reveal-delay-3">
+          <div class="why-dash"><span></span></div>
+          <p>Don't know how to get better answers the first time</p>
+        </div>
+      </div>
+      <div class="why-conclusion reveal reveal-delay-4">This class shows you how to actually use it properly.</div>
+    </div>
+  </div>
+
+  <div class="section reveal">
+    <div class="section-tag">What this is</div>
+    <div class="what-text">A simple WhatsApp class where you'll learn how to use AI on your phone to make your work faster and your daily tasks easier.</div>
+    <div class="reassurance">✓ You don't need any technical knowledge to follow along.</div>
+  </div>
+
+  <div class="section reveal">
+    <div class="section-tag">What you'll learn</div>
+    <div class="learn-list">
+      <div class="learn-item reveal reveal-delay-1">
+        <div class="check"><svg fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <span>Use AI on your phone (step-by-step)</span>
+      </div>
+      <div class="learn-item reveal reveal-delay-2">
+        <div class="check"><svg fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <span>Write messages faster and better</span>
+      </div>
+      <div class="learn-item reveal reveal-delay-3">
+        <div class="check"><svg fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <span>Write messages that sound natural and human (not robotic)</span>
+      </div>
+      <div class="learn-item reveal reveal-delay-4">
+        <div class="check"><svg fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <span>Get ideas instantly when you're stuck</span>
+      </div>
+      <div class="learn-item reveal reveal-delay-5">
+        <div class="check"><svg fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <span>Ask AI and actually get useful answers</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section reveal">
+    <div class="section-tag">How it works</div>
+    <div class="format-pills">
+      <div class="format-pill reveal reveal-delay-1">
+        <div class="pill-icon">📱</div>
+        <div class="pill-text">Live on WhatsApp</div>
+      </div>
+      <div class="format-pill reveal reveal-delay-2">
+        <div class="pill-icon">👥</div>
+        <div class="pill-text">Beginner-friendly</div>
+      </div>
+      <div class="format-pill reveal reveal-delay-3">
+        <div class="pill-icon">🧠</div>
+        <div class="pill-text">No tech experience needed</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="trust-section reveal">
+    <div class="trust-text">"If you can use WhatsApp,<br>you can use AI."</div>
+  </div>
+
+  <div class="cta-section reveal" id="cta">
+    <div class="cta-date">
+      <span>📅 <b>Sunday, May 17 · 6:00 PM</b></span>
+    </div>
+    <div class="cta-price-row">
+      <div class="cta-amount">₦15,000</div>
+      <div class="cta-per">per person</div>
+    </div>
+    <div class="cta-small-group">Small group for better guidance.</div>
+    <a href="https://wa.me/message/FLKH5VUFLSLPA1" class="cta-btn">
+      <span class="cta-btn-text">Send "AI" on WhatsApp to Join</span>
+      <span class="cta-btn-sub">Tap to open WhatsApp</span>
+    </a>
+  </div>
+
+  <div class="footer">
+    <p>Questions? <a href="https://wa.me/message/FLKH5VUFLSLPA1">Tap here to message me on WhatsApp.</a></p>
+  </div>
+
+</div>
+
+<!-- STICKY BAR -->
+<div class="sticky-bar" id="stickyBar">
+  <div class="sticky-inner">
+    <div class="sticky-price">₦15,000</div>
+    <a href="https://wa.me/message/FLKH5VUFLSLPA1" class="sticky-btn">
+      <span>Join Now on WhatsApp</span>
+    </a>
+  </div>
+</div>
+
+<!-- BACK TO TOP -->
+<a href="#top" class="back-to-top" id="backToTop" aria-label="Back to top">
+  <svg fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2.5">
+    <polyline points="18 15 12 9 6 15"/>
+  </svg>
+</a>
+
+<script>
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  revealEls.forEach(el => observer.observe(el));
+
+  const stickyBar = document.getElementById('stickyBar');
+  const backToTop = document.getElementById('backToTop');
+  const hero = document.querySelector('.hero');
+  const ctaSection = document.getElementById('cta');
+
+  window.addEventListener('scroll', () => {
+    const heroBottom = hero.getBoundingClientRect().bottom;
+    const ctaTop = ctaSection.getBoundingClientRect().top;
+
+    if (heroBottom < 0 && ctaTop > window.innerHeight) {
+      stickyBar.classList.add('visible');
+    } else {
+      stickyBar.classList.remove('visible');
+    }
+
+    if (window.scrollY > 80) {
+      backToTop.classList.add('visible');
+    } else {
+      backToTop.classList.remove('visible');
+    }
+  });
+</script>
+</body>
+</html>
